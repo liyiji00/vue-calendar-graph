@@ -31,13 +31,16 @@ function showWeek(week: string) {
   return ['Mon', 'Wed', 'Fri'].includes(week) ? week : null
 }
 
+function getLevel(count: number) {
+  if (count > defalutValue.levels[4]) return 4
+  if (count > defalutValue.levels[3]) return 3
+  if (count > defalutValue.levels[2]) return 2
+  if (count > 0) return 1
+
+  return 0
+}
 function getFillColor(count: number) {
-  const color = porps.colors || defalutValue.colors
-  if (count < 1) return color[0]
-  else if (count < 5) return color[1]
-  else if (count < 10) return color[2]
-  else if (count < 20) return color[3]
-  else return color[4]
+  return (porps.colors || defalutValue.colors)[getLevel(count)]
 }
 
 function getMouthColspan(month: number) {
@@ -75,8 +78,11 @@ function getNewMap(year: number) {
   map.push(...new Array(monthFirstDay).fill(null).map(
     (_, idx) => ({count: 0, days: idx-monthFirstDay})
   ))
+
   const days = dayjs().year(year).endOf('y').dayOfYear()
-  for (let i = 0; i < days; i++) map.push({days: i+1, count: 0})
+  // 🚩 count 需从 props.counts 拿或设为 0
+  // 暂时设置为随机
+  for (let i = 0; i < days; i++) map.push({days: i+1, count: Math.random() * 100 >> 0})
 
   return map
 }
@@ -85,7 +91,7 @@ function getNewMap(year: number) {
 <template>
   <!-- <pre>{{ JSON.stringify(porps, null, 2) }}</pre> -->
   <pre>{{ dF(FirstDay) }} - {{ dF(LastDay) }}</pre>
-  <pre>{{ dataMap.map.length }}</pre>
+  <!-- <pre>{{ dataMap.map.length }}</pre> -->
   <!-- <ul>
     <li v-for="month of 12" :colspan="4">
       week: {{ getMouthFirstDay(porps.year, month-1) }}
@@ -181,7 +187,7 @@ function getNewMap(year: number) {
           &.box {
             width    : 11px;
             max-width: 11px;
-            border   : 1px solid rgba(128, 128, 128, 0.5);
+            border   : 1px solid rgba(128, 128, 128, 0.2);
           }
         }
       }
