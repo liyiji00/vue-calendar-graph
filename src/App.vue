@@ -2,12 +2,13 @@
 import { onMounted } from 'vue'
 import dayjs from 'dayjs'
 
-import CG from './components/CalendarGraph.vue'
+import CG from './components/CalendarGraph'
 
 
 onMounted(() => {
   window['dayjs'] = dayjs
 })
+
 </script>
 
 <template>

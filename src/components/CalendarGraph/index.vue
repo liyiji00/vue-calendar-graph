@@ -3,22 +3,23 @@ import dayjs from 'dayjs'
 import dayOfYear from 'dayjs/plugin/dayOfYear'
 import { computed, reactive, ref, watch } from 'vue'
 
-import { dF, getMonthDays, getMouthFirstDay, log } from '../tools'
-import defalutValue from '../default.json'
+import { dF, getMonthDays, getMouthFirstDay, log } from '../../tools'
+import defalutValue from './default.json'
 
 
 dayjs.extend(dayOfYear)
 
 
 type TypeRactData = {
-  date : number
+  days : number
   count: number
 }
 
 
 const porps = defineProps<{
   year   : number
-  colors?: string[]
+  colors?: {'0': string, '1': string, '2': string, '3': string, '4': string}
+  /** Sort by days, need consecutive */
   counts?: number[]
 }>()
 
@@ -28,6 +29,15 @@ const LastDay  = computed(() => dayjs().year(porps.year).endOf('y'))
 
 function showWeek(week: string) {
   return ['Mon', 'Wed', 'Fri'].includes(week) ? week : null
+}
+
+function getFillColor(count: number) {
+  const color = porps.colors || defalutValue.colors
+  if (count < 1) return color[0]
+  else if (count < 5) return color[1]
+  else if (count < 10) return color[2]
+  else if (count < 20) return color[3]
+  else return color[4]
 }
 
 function getMouthColspan(month: number) {
@@ -59,14 +69,14 @@ const sortByWeek = computed(() => {
 })
 
 function getNewMap(year: number) {
-  const map           = [] as {count: number, date: number}[]
+  const map           = [] as {count: number, days: number}[]
   const monthFirstDay = getMouthFirstDay(year, 0)
 
   map.push(...new Array(monthFirstDay).fill(null).map(
-    (_, idx) => ({count: 0, date: idx-monthFirstDay})
+    (_, idx) => ({count: 0, days: idx-monthFirstDay})
   ))
   const days = dayjs().year(year).endOf('y').dayOfYear()
-  for (let i = 0; i < days; i++) map.push({date: i+1, count: 0})
+  for (let i = 0; i < days; i++) map.push({days: i+1, count: 0})
 
   return map
 }
@@ -101,10 +111,14 @@ function getNewMap(year: number) {
           <td class="week">
             {{ showWeek(dayjs().day(week-1).format('ddd')) }}
           </td>
-          <td :class="box.date > 0 ? 'box' : null"
-            v-for="box of sortByWeek[week-1]"
-            @click="e => {if (box.date>0) {log(box)}}"
-          />
+          <template v-for="box of sortByWeek[week-1]">
+            <td v-if="box.days > 0"
+              class="box"
+              :style="{backgroundColor: getFillColor(box.count)}"
+              @click="e => {log(box)}"
+            />
+            <td v-else class="last-year" />
+          </template>
         </tr>
       </tbody>
     </table>
@@ -112,7 +126,7 @@ function getNewMap(year: number) {
       <div class="palette">
         <span>Less</span>
           <div class="svgs">
-            <svg width="10" height="10" v-for="color of porps.colors || defalutValue.color">
+            <svg width="10" height="10" v-for="color of porps.colors || defalutValue.colors">
               <rect width="10" height="10" :fill="color" />
             </svg>
           </div>
@@ -128,8 +142,6 @@ function getNewMap(year: number) {
   border       : 1px solid rgba(128, 128, 128, 0.5);
   border-radius: 6px;
   padding      : 6px;
-  // border-top-left-radius : 6px;
-  // border-top-right-radius: 6px;
 
   font-size: 12px;
 
@@ -140,37 +152,37 @@ function getNewMap(year: number) {
   > table {
     border-collapse: separate;
 
-    thead {
-      tr {
+    > thead {
+      > tr {
         height     : 15px;
         max-height : 15px;
         line-height: 15px;
+
+        > td {
+          padding: 0;
+        }
       }
 
-      td {
-        padding: 0;
-      }
     }
 
-    tbody {
-      tr {
+    > tbody {
+      > tr {
         height     : 11px;
         line-height: 11px;
 
-        td {
-          padding: 0;
-        }
-
-        td.week {
-          padding-right: 5px;
-        }
-
-        td.box {
-          width        : 11px;
-          max-width    : 11px;
+        > td {
+          padding      : 0;
           border-radius: 2px;
 
-          border: 1px solid rgba(128, 128, 128, 0.5);
+          &.week {
+            padding-right: 5px;
+          }
+
+          &.box {
+            width    : 11px;
+            max-width: 11px;
+            border   : 1px solid rgba(128, 128, 128, 0.5);
+          }
         }
       }
     }
