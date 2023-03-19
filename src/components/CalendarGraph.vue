@@ -4,6 +4,7 @@ import dayOfYear from 'dayjs/plugin/dayOfYear'
 import { computed, reactive, ref, watch } from 'vue'
 
 import { dF, getMonthDays, getMouthFirstDay, log } from '../tools'
+import defalutValue from '../default.json'
 
 
 dayjs.extend(dayOfYear)
@@ -17,15 +18,9 @@ type TypeRactData = {
 
 const porps = defineProps<{
   year   : number
-  colors?: {
-    0: string
-    1: string
-    2: string
-    3: string
-    4: string
-  }
+  colors?: string[]
+  counts?: number[]
 }>()
-
 
 const FirstDay = computed(() => dayjs().year(porps.year).startOf('y'))
 const LastDay  = computed(() => dayjs().year(porps.year).endOf('y'))
@@ -113,6 +108,17 @@ function getNewMap(year: number) {
         </tr>
       </tbody>
     </table>
+    <div class="footer">
+      <div class="palette">
+        <span>Less</span>
+          <div class="svgs">
+            <svg width="10" height="10" v-for="color of porps.colors || defalutValue.color">
+              <rect width="10" height="10" :fill="color" />
+            </svg>
+          </div>
+        <span>More</span>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -131,7 +137,7 @@ function getNewMap(year: number) {
     box-sizing: border-box;
   }
 
-  table {
+  > table {
     border-collapse: separate;
 
     thead {
@@ -165,6 +171,25 @@ function getNewMap(year: number) {
           border-radius: 2px;
 
           border: 1px solid rgba(128, 128, 128, 0.5);
+        }
+      }
+    }
+  }
+
+  > .footer {
+    padding-top: 5px;
+
+    display        : flex;
+    justify-content: flex-end;
+    align-items    : center;
+    > .palette {
+      > .svgs {
+        display: inline;
+        margin : 0 2px;
+
+        svg {
+          margin       : 0 1px;
+          border-radius: 2px;
         }
       }
     }
