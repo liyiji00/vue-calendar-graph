@@ -44,13 +44,14 @@ function getFillColor(count: number) {
 }
 
 function getMouthColspan(month: number) {
-  const days = getMonthDays(porps.year, month)
-  // return +dayjs().month(month-1).startOf('M').format('d')
-  if (month === 1) {
-    return Math.ceil((days+getMouthFirstDay(porps.year, month)) / 7)
-  } else {
-    return Math.ceil((days) / 7)
-  }
+  const days     = getMonthDays(porps.year, month)
+  const firstDay = getMouthFirstDay(porps.year, month)
+
+  return (
+    Math.ceil((days - 7 + firstDay) / 7 )
+    + (month === 0 ? 1 : 0)
+    + (firstDay === 0 && month !== 0 ? 1 : 0)
+  )
 }
 
 const dataMap = reactive<{year: number, map : TypeRactData[]}>({
@@ -106,7 +107,7 @@ function getNewMap(year: number) {
           <td></td>
           <td
             v-for="month of 12"
-            :colspan="Math.ceil(getMonthDays(porps.year, month-1) / 7)"
+            :colspan="getMouthColspan(month-1)"
           >
             {{ dayjs().month(month-1).format("MMM") }}
           </td>
@@ -121,7 +122,7 @@ function getNewMap(year: number) {
             <td v-if="box.days > 0"
               class="box"
               :style="{backgroundColor: getFillColor(box.count)}"
-              @click="e => {log(box)}"
+              @click="e => {log(dF(dayjs().year(porps.year).dayOfYear(box.days)))}"
             />
             <td v-else class="last-year" />
           </template>
