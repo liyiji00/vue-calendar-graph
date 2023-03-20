@@ -10,7 +10,7 @@ import defalutValue from './default.json'
 dayjs.extend(dayOfYear)
 
 
-type TypeRactData = {
+type TypeRecord = {
   days : number
   count: number
 }
@@ -20,12 +20,10 @@ const porps = defineProps<{
   year   : number
   colors?: {'0': string, '1': string, '2': string, '3': string, '4': string}
   /** Sort by days, need consecutive */
-  counts?: number[]
+  records?: number[]
   renderTootip?: (days: number, count: number) => string
 }>()
 
-const FirstDay = computed(() => dayjs().year(porps.year).startOf('y'))
-const LastDay  = computed(() => dayjs().year(porps.year).endOf('y'))
 
 
 function showWeek(week: string) {
@@ -55,25 +53,25 @@ function getMouthColspan(month: number) {
   )
 }
 
-const dataMap = reactive<{year: number, map : TypeRactData[]}>({
-  map : getNewMap(porps.year),
+const dataMap = reactive<{year: number, map : TypeRecord[]}>({
+  map : getMap(porps.year),
   year: porps.year
 })
 watch([porps], () => {
   if (porps.year !== dataMap.year) {
     while(dataMap.map.length) dataMap.map.pop()
 
-    dataMap.map.push(...getNewMap(porps.year))
+    dataMap.map.push(...getMap(porps.year))
     dataMap.year = porps.year
   }
 })
 const sortByWeek = computed(() => {
-  const data = new Array(7).fill(null).map(_ => ([] as TypeRactData[]))
+  const data = new Array(7).fill(null).map(_ => ([] as TypeRecord[]))
   dataMap.map.forEach((i, idx) => {data[idx % 7].push(i)})
   return data
 })
 
-function getNewMap(year: number) {
+function getMap(year: number) {
   const map           = [] as {count: number, days: number}[]
   const monthFirstDay = getMouthFirstDay(year, 0)
 
@@ -82,27 +80,25 @@ function getNewMap(year: number) {
   ))
 
   const days = dayjs().year(year).endOf('y').dayOfYear()
-  // 🚩 count 需从 props.counts 拿或设为 0
-  // 暂时设置为随机
-  for (let i = 0; i < days; i++) map.push({days: i+1, count: Math.random() * 100 >> 0})
+  for (let i = 0; i < days; i++) map.push({
+    days : i+1,
+    count: porps.records?.[i] || 0
+  })
 
   return map
 }
 
-function getTootipText(box: {days: number, count: number}) {
-  const {days, count} = box
-
+function getTootipText(record: {days: number, count: number}) {
   return (
     porps.renderTootip
-    ? porps.renderTootip(days, count)
-    : `${count || 'No'} contributions on ${dF(getDateByDays(porps.year, box.days))}`
+    ? porps.renderTootip(record.days, record.count)
+    : `${record.count || 'No'} contributions on ${dF(getDateByDays(porps.year, record.days))}`
   )
 }
 </script>
 
 <template>
   <!-- <pre>{{ JSON.stringify(porps, null, 2) }}</pre> -->
-  <pre>{{ dF(FirstDay) }} - {{ dF(LastDay) }}</pre>
   <!-- <pre>{{ dataMap.map.length }}</pre> -->
   <!-- <ul>
     <li v-for="month of 12" :colspan="4">
@@ -129,12 +125,12 @@ function getTootipText(box: {days: number, count: number}) {
           <td class="week">
             {{ showWeek(dayjs().day(week-1).format('ddd')) }}
           </td>
-          <template v-for="box of sortByWeek[week-1]">
-            <td v-if="box.days > 0"
-              class="box"
-              :title="getTootipText(box)"
-              :style="{backgroundColor: getFillColor(box.count)}"
-              @click="e => {log(dF(getDateByDays(porps.year, box.days)))}"
+          <template v-for="record of sortByWeek[week-1]">
+            <td v-if="record.days > 0"
+              class="record"
+              :title="getTootipText(record)"
+              :style="{backgroundColor: getFillColor(record.count)}"
+              @click="e => {log(dF(getDateByDays(porps.year, record.days)))}"
             />
             <td v-else class="last-year" />
           </template>
@@ -197,7 +193,7 @@ function getTootipText(box: {days: number, count: number}) {
             padding-right: 5px;
           }
 
-          &.box {
+          &.record {
             width    : 11px;
             max-width: 11px;
             border   : 1px solid rgba(128, 128, 128, 0.2);
