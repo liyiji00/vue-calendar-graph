@@ -121,6 +121,7 @@ function getNewMap(year: number) {
           <template v-for="box of sortByWeek[week-1]">
             <td v-if="box.days > 0"
               class="box"
+              :title="`${box.count || 'No'} contributions on ${dF(dayjs().year(porps.year).dayOfYear(box.days))}`"
               :style="{backgroundColor: getFillColor(box.count)}"
               @click="e => {log(dF(dayjs().year(porps.year).dayOfYear(box.days)))}"
             />

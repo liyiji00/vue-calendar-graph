@@ -8,7 +8,7 @@ import dayjs from 'dayjs'
  * ```
  */
 export function dF(day: dayjs.Dayjs) {
-  return day.format('YYYY/MM/DD')
+  return day.format('MMM DD, YYYY')
 }
 
 /** Get the days of the month */
