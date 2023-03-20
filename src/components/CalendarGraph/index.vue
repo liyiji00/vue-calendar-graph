@@ -98,15 +98,6 @@ function getTootipText(record: {days: number, count: number}) {
 </script>
 
 <template>
-  <!-- <pre>{{ JSON.stringify(porps, null, 2) }}</pre> -->
-  <!-- <pre>{{ dataMap.map.length }}</pre> -->
-  <!-- <ul>
-    <li v-for="month of 12" :colspan="4">
-      week: {{ getMouthFirstDay(porps.year, month-1) }}
-      days: {{ getMonthDays(porps.year, month-1) }}
-      col: {{ getMouthColspan(month-1) }}
-    </li>
-  </ul> -->
   <div class="container">
     <table>
       <thead>

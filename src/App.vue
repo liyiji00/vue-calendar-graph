@@ -6,11 +6,6 @@ import CG from './components/CalendarGraph'
 import { dF } from './tools'
 
 
-onMounted(() => {
-  window['dayjs'] = dayjs
-})
-
-
 function getRandomRecords(year: number) {
   const map: number[] = []
 
@@ -36,8 +31,13 @@ const LastDay  = computed(() => dayjs().year(year.value).endOf('y'))
     <pre>{{ dF(FirstDay) }} - {{ dF(LastDay) }}</pre>
   </div>
   <CG
+    class="calendar-graph"
     :year="(year)"
     :records="getRandomRecords(2023)"
+  />
+  <CG
+    class="calendar-graph"
+    :year="(year)"
   />
 </template>
 
@@ -46,5 +46,9 @@ const LastDay  = computed(() => dayjs().year(year.value).endOf('y'))
   display        : flex;
   justify-content: center;
   align-items    : center;
+}
+
+.calendar-graph {
+  margin: 10px;
 }
 </style>
