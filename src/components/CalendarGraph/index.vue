@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 import dayOfYear from 'dayjs/plugin/dayOfYear'
 import { computed, reactive, ref, watch } from 'vue'
 
-import { dF, getMonthDays, getMouthFirstDay, log } from '../../tools'
+import { dF, getMonthDays, getMouthFirstDay, getDateByDays, log } from '../../tools'
 import defalutValue from './default.json'
 
 
@@ -21,6 +21,7 @@ const porps = defineProps<{
   colors?: {'0': string, '1': string, '2': string, '3': string, '4': string}
   /** Sort by days, need consecutive */
   counts?: number[]
+  renderTootip?: (days: number, count: number) => string
 }>()
 
 const FirstDay = computed(() => dayjs().year(porps.year).startOf('y'))
@@ -87,6 +88,16 @@ function getNewMap(year: number) {
 
   return map
 }
+
+function getTootipText(box: {days: number, count: number}) {
+  const {days, count} = box
+
+  return (
+    porps.renderTootip
+    ? porps.renderTootip(days, count)
+    : `${count || 'No'} contributions on ${dF(getDateByDays(porps.year, box.days))}`
+  )
+}
 </script>
 
 <template>
@@ -121,9 +132,9 @@ function getNewMap(year: number) {
           <template v-for="box of sortByWeek[week-1]">
             <td v-if="box.days > 0"
               class="box"
-              :title="`${box.count || 'No'} contributions on ${dF(dayjs().year(porps.year).dayOfYear(box.days))}`"
+              :title="getTootipText(box)"
               :style="{backgroundColor: getFillColor(box.count)}"
-              @click="e => {log(dF(dayjs().year(porps.year).dayOfYear(box.days)))}"
+              @click="e => {log(dF(getDateByDays(porps.year, box.days)))}"
             />
             <td v-else class="last-year" />
           </template>
