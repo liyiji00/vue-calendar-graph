@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import dayjs from 'dayjs'
 
 import CG from './components/CalendarGraph'
@@ -18,6 +18,7 @@ function getRandomRecords(year: number) {
 const year     = ref<number>(2023)
 const FirstDay = computed(() => dayjs().year(year.value).startOf('y'))
 const LastDay  = computed(() => dayjs().year(year.value).endOf('y'))
+const isDark   = ref<boolean>(false)
 </script>
 
 <template>
@@ -29,15 +30,25 @@ const LastDay  = computed(() => dayjs().year(year.value).endOf('y'))
       <option :value="2023" selected>2023</option>
     </select>
     <pre>{{ dF(FirstDay) }} - {{ dF(LastDay) }}</pre>
+    <div class="flex-center">
+      <div>
+        dark
+        <input type="radio" :checked="isDark" @click="isDark=true" >
+      </div>
+      <div>
+        light
+        <input type="radio" :checked="!isDark" @click="isDark=false" >
+      </div>
+    </div>
   </div>
   <CG
-    class="calendar-graph"
     :year="(year)"
-    :records="getRandomRecords(2023)"
+    :is-dark="isDark"
+    :records="getRandomRecords(year)"
   />
   <CG
-    class="calendar-graph"
     :year="(year)"
+    :is-dark="isDark"
   />
 </template>
 
@@ -48,7 +59,9 @@ const LastDay  = computed(() => dayjs().year(year.value).endOf('y'))
   align-items    : center;
 }
 
-.calendar-graph {
-  margin: 10px;
+.flex-center {
+  display        : flex;
+  justify-content: center;
+  align-items    : center;
 }
 </style>

@@ -22,6 +22,7 @@ const porps = defineProps<{
   /** Sort by days, need consecutive */
   records?: number[]
   renderTootip?: (days: number, count: number) => string
+  isDark?: boolean
 }>()
 
 
@@ -39,7 +40,15 @@ function getLevel(count: number) {
   return 0
 }
 function getFillColor(count: number) {
-  return (porps.colors || defalutValue.colors)[getLevel(count)]
+  return porps.colors
+    ? (porps.colors[getLevel(count)])
+    : defalutValue.colors[getLevel(count)][porps.isDark ? 'dark' : 'light']
+}
+function getPaletteColors() {
+  const keys: ('0'|'1'|'2'|'3'|'4')[] = ['0', '1', '2', '3', '4']
+  return porps.colors
+    ? keys.map(key => porps.colors![key])
+    : keys.map(key => defalutValue.colors[key][porps.isDark ? 'dark' : 'light'])
 }
 
 function getMouthColspan(month: number) {
@@ -98,7 +107,7 @@ function getTootipText(record: {days: number, count: number}) {
 </script>
 
 <template>
-  <div class="container">
+  <div class="container" :class="isDark ? 'dark' : null">
     <table>
       <thead>
         <tr class="months">
@@ -132,7 +141,7 @@ function getTootipText(record: {days: number, count: number}) {
       <div class="palette">
         <span>Less</span>
           <div class="svgs">
-            <svg width="10" height="10" v-for="color of porps.colors || defalutValue.colors">
+            <svg width="10" height="10" v-for="color of getPaletteColors()">
               <rect width="10" height="10" :fill="color" />
             </svg>
           </div>
@@ -148,6 +157,23 @@ function getTootipText(record: {days: number, count: number}) {
   border       : 1px solid rgba(128, 128, 128, 0.5);
   border-radius: 6px;
   padding      : 6px;
+  margin       : 10px;
+  color: rgba(128, 128, 128, 0.5);
+
+  background-color: #fff;
+
+  td.record {
+    border: 1px solid rgba(27, 31, 35, 0.06);
+  }
+
+  &.dark {
+    background-color: #111;
+
+    td.record {
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+  }
+
 
   font-size: 12px;
 
@@ -157,7 +183,6 @@ function getTootipText(record: {days: number, count: number}) {
 
   > table {
     border-collapse: separate;
-
     > thead {
       > tr {
         height     : 15px;
@@ -168,10 +193,10 @@ function getTootipText(record: {days: number, count: number}) {
           padding: 0;
         }
       }
-
     }
 
     > tbody {
+      * { opacity: 1; }
       > tr {
         height     : 11px;
         line-height: 11px;
@@ -187,7 +212,6 @@ function getTootipText(record: {days: number, count: number}) {
           &.record {
             width    : 11px;
             max-width: 11px;
-            border   : 1px solid rgba(128, 128, 128, 0.2);
           }
         }
       }
