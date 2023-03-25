@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import dayjs from 'dayjs'
 
-import CG from './components/CalendarGraph'
+import CalendarGraph from '@lib/core'
 import { dF } from './tools'
 
 
@@ -41,12 +41,12 @@ const isDark   = ref<boolean>(false)
       </div>
     </div>
   </div>
-  <CG
+  <CalendarGraph
     :year="(year)"
     :is-dark="isDark"
     :records="getRandomRecords(year)"
   />
-  <CG
+  <CalendarGraph
     :year="(year)"
     :is-dark="isDark"
   />

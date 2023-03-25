@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import dayjs from 'dayjs'
 import dayOfYear from 'dayjs/plugin/dayOfYear'
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, reactive, watch } from 'vue'
 
-import { dF, getMonthDays, getMouthFirstDay, getDateByDays, log } from '../../tools'
+import { dF, getMonthDays, getMouthFirstDay, getDateByDays, log } from './tools'
 import defalutValue from './default.json'
 
 
@@ -130,7 +130,7 @@ function getTootipText(record: {days: number, count: number}) {
               class="record"
               :title="getTootipText(record)"
               :style="{backgroundColor: getFillColor(record.count)}"
-              @click="e => {log(dF(getDateByDays(porps.year, record.days)))}"
+              @click="_ => {log(dF(getDateByDays(porps.year, record.days)))}"
             />
             <td v-else class="last-year" />
           </template>

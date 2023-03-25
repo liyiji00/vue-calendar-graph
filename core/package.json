@@ -1,0 +1,10 @@
+{
+  "name": "@lib/core",
+  "version": "1.0.0",
+  "main": "./index.ts",
+  "module": "./index.ts",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}

@@ -1,6 +1,8 @@
 {
   "name": "vue-calendar-graph",
   "version": "0.0.1",
+  "private": false,
+  "type": "module",
   "description": "A calendar graph vue-component inspired by github's contribution graph",
   "author": "Longxiang Li",
   "license": "MIT",
@@ -8,22 +10,32 @@
     "type": "git",
     "url": "https://github.com/llx-00/vue-calendar-graph.git"
   },
+  "main": "./dist/bundle.js",
+  "module": "./dist/bundle.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "keywords": [
     "calendar",
     "vue",
+    "component",
     "vue-component"
   ],
   "scripts": {
-    "dev": "vite",
-    "build": "vue-tsc && vite build",
-    "preview": "vite preview"
+    "dev": "pnpm -C example run dev",
+    "dev:example": "pnpm -C example run dev",
+    "build": "tsc && vite build",
+    "preview": "npm -C example run build && npm -C example run preview"
   },
   "dependencies": {
-    "dayjs": "^1.11.7",
-    "vue": "^3.2.47"
+    "vue": "^3.2.47",
+    "dayjs": "^1.11.7"
   },
   "devDependencies": {
+    "@types/node": "^18.15.9",
     "@vitejs/plugin-vue": "^4.1.0",
+    "vite-plugin-dts": "^2.0.0",
     "sass": "^1.59.3",
     "typescript": "^5.0.0",
     "vite": "^4.2.0",
