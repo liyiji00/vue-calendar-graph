@@ -19,6 +19,7 @@ type TypeRecord = {
 const porps = defineProps<{
   year   : number
   colors?: {'0': string, '1': string, '2': string, '3': string, '4': string}
+  levels?: {'1': number, '2': number, '3': number, '4': number}
   /** Sort by days, need consecutive */
   records?: number[]
   renderTootip?: (days: number, count: number) => string
@@ -32,10 +33,12 @@ function showWeek(week: string) {
 }
 
 function getLevel(count: number) {
-  if (count > defalutValue.levels[4]) return 4
-  if (count > defalutValue.levels[3]) return 3
-  if (count > defalutValue.levels[2]) return 2
-  if (count > 0) return 1
+  const levels = porps.levels || defalutValue.levels
+
+  if (count > levels[4]) return 4
+  if (count > levels[3]) return 3
+  if (count > levels[2]) return 2
+  if (count > levels[1]) return 1
 
   return 0
 }
