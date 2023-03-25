@@ -7,48 +7,42 @@ import { dF } from './tools'
 
 
 function getRandomRecords(year: number) {
-  const map: number[] = []
-
   const days = dayjs().year(year).endOf('y').dayOfYear()
-  for (let i = 0; i < days; i++) map.push(Math.random() * 100 >> 0)
 
-  return map
+  function getRandom() {
+    return Math.random()*20 - Math.random()*5 >> 0
+  }
+
+  return (new Array(days).fill(null).map(_ => getRandom()))
 }
 
-const year     = ref<number>(2023)
+const thisYear = new Date().getFullYear()
+const year     = ref<number>(thisYear)
 const FirstDay = computed(() => dayjs().year(year.value).startOf('y'))
 const LastDay  = computed(() => dayjs().year(year.value).endOf('y'))
 const isDark   = ref<boolean>(false)
+const records  = computed(() => getRandomRecords(year.value))
 </script>
 
 <template>
   <div class="header">
     <select v-model="year">
-      <option :value="2020">2020</option>
-      <option :value="2021">2021</option>
-      <option :value="2022">2022</option>
-      <option :value="2023" selected>2023</option>
+      <option v-for="_y in 4" :value="(thisYear-_y+1)">
+        {{ thisYear-_y+1 }}
+      </option>
     </select>
     <pre>{{ dF(FirstDay) }} - {{ dF(LastDay) }}</pre>
-    <div class="flex-center">
-      <div>
-        dark
-        <input type="radio" :checked="isDark" @click="isDark=true" >
-      </div>
-      <div>
-        light
-        <input type="radio" :checked="!isDark" @click="isDark=false" >
-      </div>
-    </div>
+    <button @click="isDark=!isDark">{{ isDark ? 'dark' : 'light' }}</button>
   </div>
   <CalendarGraph
     :year="(year)"
     :is-dark="isDark"
-    :records="getRandomRecords(year)"
+    :records="records"
   />
   <CalendarGraph
     :year="(year)"
-    :is-dark="isDark"
+    :is-dark="!isDark"
+    :records="records"
   />
 </template>
 
@@ -59,9 +53,8 @@ const isDark   = ref<boolean>(false)
   align-items    : center;
 }
 
-.flex-center {
-  display        : flex;
-  justify-content: center;
-  align-items    : center;
+a {
+  color          : inherit;
+  text-decoration: none;
 }
 </style>
