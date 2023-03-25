@@ -35,4 +35,4 @@ import "vue-calendar-graph/dist/style.css"
 ## MIT License
 Copyright (c) 2023 Longxiang Li
 
-[See more LICENSE](./LICENSE)
+[See more LICENSE](https://github.com/llx-00/vue-calendar-graph/blob/main/LICENSE)

@@ -6,6 +6,7 @@
   "description": "A calendar graph vue-component inspired by github's contribution graph",
   "author": "Longxiang Li",
   "license": "MIT",
+  "readme": "README.md",
   "repository": {
     "type": "git",
     "url": "https://github.com/llx-00/vue-calendar-graph.git"
