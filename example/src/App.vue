@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import dayjs from 'dayjs'
 
 import CalendarGraph from '@lib/core'
-import { dF } from './tools'
+import { dF, log } from './tools'
 
 
 function getRandomRecords(year: number) {
@@ -38,6 +38,7 @@ const records  = computed(() => getRandomRecords(year.value))
     :year="(year)"
     :is-dark="isDark"
     :records="records"
+    :record-handle="r => {log(r)}"
   />
   <CalendarGraph
     :year="(year)"

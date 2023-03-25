@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 import dayOfYear from 'dayjs/plugin/dayOfYear'
 import { computed, reactive, watch } from 'vue'
 
-import { dF, getMonthDays, getMouthFirstDay, getDateByDays, log } from './tools'
+import { dF, getMonthDays, getMouthFirstDay, getDateByDays } from './tools'
 import defalutValue from './default.json'
 
 
@@ -22,6 +22,7 @@ const porps = defineProps<{
   levels?: {'1': number, '2': number, '3': number, '4': number}
   /** Sort by days, need consecutive */
   records?: number[]
+  recordHandle?: (record: TypeRecord) => (any)
   renderTootip?: (days: number, count: number) => string
   isDark?: boolean
 }>()
@@ -133,7 +134,11 @@ function getTootipText(record: {days: number, count: number}) {
               class="record"
               :title="getTootipText(record)"
               :style="{backgroundColor: getFillColor(record.count)}"
-              @click="_ => {log(dF(getDateByDays(porps.year, record.days)))}"
+              @click="_ => {
+                if (porps.recordHandle) {
+                  porps.recordHandle(record)
+                }
+              }"
             />
             <td v-else class="last-year" />
           </template>
@@ -213,7 +218,7 @@ function getTootipText(record: {days: number, count: number}) {
           }
 
           &.record {
-            width    : 11px;
+            min-width: 11px;
             max-width: 11px;
           }
         }
