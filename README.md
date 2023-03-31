@@ -2,6 +2,10 @@
 
 A calendar graph vue-component inspired by github's contribution graph. [**Try it out on CodeSandbox**](https://codesandbox.io/p/sandbox/charming-meninsky-fhonf3).
 
+![md-1](https://llx.cool/public/calendar-graph/md-1.png)
+
+[See react version](https://www.npmjs.com/package/react-calendar-graph)
+
 ## Setup
 
 Install the npm module with yarn or pnpm:
@@ -25,14 +29,28 @@ import "vue-calendar-graph/dist/style.css"
 ```
 
 ## Props
+```ts
+type TypeProps = {
+  year   : number
+  isDark?: boolean
+  colors?: { [key in (0 | 1 | 2 | 3 | 4)]: string }
+  levels?: { [key in (1 | 2 | 3 | 4)]: number }
 
-| Name | Type *(Required) | Description |
-| ---- | ---- | ----------- |
-| `year` | * `number` |  |
-| `isDark` | `boolean` |  |
-| `records` | `number[]` | Sort by days, need consecutive |
+  /** Sort by days, need consecutive */
+  records?: number[]
+
+  recordHandle?: (record: TypeRecord) => any
+  renderTootip?: (record: TypeRecord) => string
+}
+
+type TypeRecord = {
+  days : number
+  count: number
+}
+
+```
 
 ## MIT License
-Copyright (c) 2023 Longxiang Li
+Copyright &copy; 2023 [Longxiang Li](https://llx.cool)
 
-[See more LICENSE](https://github.com/llx-00/vue-calendar-graph/blob/main/LICENSE)
+[See more LICENSE](https://github.com/llx-00/react-calendar-graph/blob/main/LICENSE)
