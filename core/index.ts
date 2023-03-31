@@ -1,4 +1,4 @@
-import CalendarGraph from "./CalendarGraph.vue"
+import CalendarGraph from './calendar-graph/index.vue'
 
 
 export default CalendarGraph

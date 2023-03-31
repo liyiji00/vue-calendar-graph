@@ -3,79 +3,95 @@ import dayjs from 'dayjs'
 import dayOfYear from 'dayjs/plugin/dayOfYear'
 import { computed, reactive, watch } from 'vue'
 
-import { dF, getMonthDays, getMouthFirstDay, getDateByDays } from './tools'
+import { getDateByDays, dF, getMouthFirstDay, getMouthColspan, showWeek } from '../utils/day'
+
 import defalutValue from './default.json'
 
 
 dayjs.extend(dayOfYear)
 
 
+type TypeColorKey = 0 | 1 | 2 | 3 | 4
+type TypeLevels   = 1 | 2 | 3 | 4
+
 type TypeRecord = {
   days : number
   count: number
 }
-
-
-const porps = defineProps<{
+type TypeProps = {
   year   : number
-  colors?: {'0': string, '1': string, '2': string, '3': string, '4': string}
-  levels?: {'1': number, '2': number, '3': number, '4': number}
+  isDark?: boolean
+  colors?: { [key in TypeColorKey]: string }
+  levels?: { [key in TypeLevels]: number }
+
   /** Sort by days, need consecutive */
   records?: number[]
+
+  /** The function runs when you click the `<rd/>` element */
   recordHandle?: (record: TypeRecord) => (any)
-  renderTootip?: (days: number, count: number) => string
-  isDark?: boolean
-}>()
 
-
-
-function showWeek(week: string) {
-  return ['Mon', 'Wed', 'Fri'].includes(week) ? week : null
+  /** When you hove `<rd/>` element, the result of running the function is displayed */
+  renderTootip?: (record: TypeRecord) => string
 }
 
-function getLevel(count: number) {
-  const levels = porps.levels || defalutValue.levels
+const props = defineProps<TypeProps>()
 
+function getLevel(count: number) {
+  const levels = props.levels || defalutValue.levels
   if (count > levels[4]) return 4
   if (count > levels[3]) return 3
   if (count > levels[2]) return 2
   if (count > levels[1]) return 1
-
   return 0
 }
 function getFillColor(count: number) {
-  return porps.colors
-    ? (porps.colors[getLevel(count)])
-    : defalutValue.colors[getLevel(count)][porps.isDark ? 'dark' : 'light']
+  return props.colors
+    ? (props.colors[getLevel(count)])
+    : defalutValue.colors[getLevel(count)][props.isDark ? 'dark' : 'light']
 }
 function getPaletteColors() {
-  const keys: ('0'|'1'|'2'|'3'|'4')[] = ['0', '1', '2', '3', '4']
-  return porps.colors
-    ? keys.map(key => porps.colors![key])
-    : keys.map(key => defalutValue.colors[key][porps.isDark ? 'dark' : 'light'])
+  const keys: TypeColorKey[] = [0, 1, 2, 3, 4]
+  return props.colors
+    ? keys.map(key => props.colors![key])
+    : keys.map(key => defalutValue.colors[key][props.isDark ? 'dark' : 'light'])
 }
 
-function getMouthColspan(month: number) {
-  const days     = getMonthDays(porps.year, month)
-  const firstDay = getMouthFirstDay(porps.year, month)
+function getMap(year: number) {
+  const map = [] as TypeRecord[]
+  const day = getMouthFirstDay(year, 0)
 
-  return (
-    Math.ceil((days - 7 + firstDay) / 7 )
-    + (month === 0 ? 1 : 0)
-    + (firstDay === 0 && month !== 0 ? 1 : 0)
-  )
+  map.push(...new Array(day).fill(null).map(
+    (_, idx) => ({ count: 0, days: idx-day })
+  ))
+
+  const days = dayjs().year(year).endOf('y').dayOfYear()
+  for (let i = 0; i < days; i++) map.push({
+    days : i + 1,
+    count: props.records?.[i] || 0
+  })
+  return map
+}
+
+function getTootipText(record: TypeRecord) {
+  return props.renderTootip
+    ? props.renderTootip(record)
+    : (
+      (record.count || 'No')
+      + ' contributions on '
+      + dF(getDateByDays(props.year, record.days))
+    )
 }
 
 const dataMap = reactive<{year: number, map : TypeRecord[]}>({
-  map : getMap(porps.year),
-  year: porps.year
+  map : getMap(props.year),
+  year: props.year
 })
-watch([porps], () => {
-  if (porps.year !== dataMap.year) {
+watch([props], () => {
+  if (props.year !== dataMap.year) {
     while(dataMap.map.length) dataMap.map.pop()
 
-    dataMap.map.push(...getMap(porps.year))
-    dataMap.year = porps.year
+    dataMap.map.push(...getMap(props.year))
+    dataMap.year = props.year
   }
 })
 const sortByWeek = computed(() => {
@@ -84,41 +100,18 @@ const sortByWeek = computed(() => {
   return data
 })
 
-function getMap(year: number) {
-  const map           = [] as {count: number, days: number}[]
-  const monthFirstDay = getMouthFirstDay(year, 0)
 
-  map.push(...new Array(monthFirstDay).fill(null).map(
-    (_, idx) => ({count: 0, days: idx-monthFirstDay})
-  ))
-
-  const days = dayjs().year(year).endOf('y').dayOfYear()
-  for (let i = 0; i < days; i++) map.push({
-    days : i+1,
-    count: porps.records?.[i] || 0
-  })
-
-  return map
-}
-
-function getTootipText(record: {days: number, count: number}) {
-  return (
-    porps.renderTootip
-    ? porps.renderTootip(record.days, record.count)
-    : `${record.count || 'No'} contributions on ${dF(getDateByDays(porps.year, record.days))}`
-  )
-}
 </script>
 
 <template>
-  <div class="container" :class="isDark ? 'dark' : null">
+  <div class="calendar-graph-container" :class="isDark ? 'dark' : null">
     <table>
       <thead>
         <tr class="months">
           <td></td>
           <td
             v-for="month of 12"
-            :colspan="getMouthColspan(month-1)"
+            :colspan="getMouthColspan(props.year, month-1)"
           >
             {{ dayjs().month(month-1).format("MMM") }}
           </td>
@@ -135,8 +128,8 @@ function getTootipText(record: {days: number, count: number}) {
               :title="getTootipText(record)"
               :style="{backgroundColor: getFillColor(record.count)}"
               @click="_ => {
-                if (porps.recordHandle) {
-                  porps.recordHandle(record)
+                if (props.recordHandle) {
+                  props.recordHandle(record)
                 }
               }"
             />
@@ -160,14 +153,14 @@ function getTootipText(record: {days: number, count: number}) {
 </template>
 
 <style scoped lang="scss">
-.container {
-  width        : fit-content;
-  border       : 1px solid rgba(128, 128, 128, 0.5);
-  border-radius: 6px;
-  padding      : 6px;
-  margin       : 10px;
-  color: rgba(128, 128, 128, 0.5);
-
+.calendar-graph-container {
+  font-size       : 12px;
+  width           : fit-content;
+  border          : 1px solid rgba(128, 128, 128, 0.5);
+  border-radius   : 6px;
+  padding         : 6px;
+  margin          : 10px;
+  color           : #000;
   background-color: #fff;
 
   td.record {
@@ -175,15 +168,13 @@ function getTootipText(record: {days: number, count: number}) {
   }
 
   &.dark {
-    background-color: #111;
+    color           : #eee;
+    background-color: #222;
 
     td.record {
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.06);
     }
   }
-
-
-  font-size: 12px;
 
   * {
     box-sizing: border-box;
@@ -191,12 +182,12 @@ function getTootipText(record: {days: number, count: number}) {
 
   > table {
     border-collapse: separate;
+
     > thead {
       > tr {
         height     : 15px;
         max-height : 15px;
         line-height: 15px;
-
         > td {
           padding: 0;
         }
@@ -204,7 +195,8 @@ function getTootipText(record: {days: number, count: number}) {
     }
 
     > tbody {
-      * { opacity: 1; }
+      * { opacity: 1; };
+
       > tr {
         height     : 11px;
         line-height: 11px;
@@ -227,12 +219,13 @@ function getTootipText(record: {days: number, count: number}) {
   }
 
   > .footer {
-    padding-top: 5px;
-
+    padding-top    : 5px;
     display        : flex;
     justify-content: flex-end;
     align-items    : center;
+
     > .palette {
+
       > .svgs {
         display: inline;
         margin : 0 2px;
@@ -245,4 +238,5 @@ function getTootipText(record: {days: number, count: number}) {
     }
   }
 }
+
 </style>
