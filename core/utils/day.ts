@@ -29,7 +29,7 @@ export function getDateByDays(year: number, days: number): dayjs.Dayjs
 export function getDateByDays(year: number, days?: number) {
   return typeof(days)==='number'
     ? dayjs().year(year).dayOfYear(days)
-    : dayjs().year(year).dayOfYear()
+    : dayjs().year(year).endOf('y').dayOfYear()
 }
 
 export function showWeek(week: string) {
