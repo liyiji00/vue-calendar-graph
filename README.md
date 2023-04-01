@@ -1,6 +1,6 @@
 # Vue Calendar Graph
 
-A calendar graph vue-component inspired by github's contribution graph. [**Try it out on CodeSandbox**](https://codesandbox.io/p/sandbox/charming-meninsky-fhonf3).
+A calendar graph vue-component inspired by github's contribution graph. [**Try it out on CodeSandbox**](https://codesandbox.io/p/sandbox/demo-vue-calendar-graph-fhonf3).
 
 ![md-1](https://llx.cool/public/calendar-graph/md-1.png)
 
