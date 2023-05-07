@@ -1,6 +1,6 @@
 {
   "name": "vue-calendar-graph",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "private": false,
   "type": "module",
   "description": "A calendar graph vue-component inspired by github's contribution graph",
