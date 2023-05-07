@@ -125,7 +125,7 @@ const sortByWeek = computed(() => {
           <template v-for="record of sortByWeek[week-1]">
             <td v-if="record.days > 0"
               class="record"
-              :title="getTootipText(record)"
+              :attr-tip="getTootipText(record)"
               :style="{backgroundColor: getFillColor(record.count)}"
               @click="_ => {
                 if (props.recordHandle) {
@@ -165,6 +165,42 @@ const sortByWeek = computed(() => {
 
   td.record {
     border: 1px solid rgba(27, 31, 35, 0.06);
+
+    position: relative;
+
+    &::after {
+      content: attr(attr-tip);
+
+      display   : block;
+      position  : absolute;
+      transform : translate(-50%, -40px);
+      visibility: hidden;
+
+      z-index         : 10;
+      color           : #fff;
+      background-color: rgb(128,128,128);
+      border-radius   : 0.25rem;
+      white-space     : pre;
+      padding         : 0.5rem;
+    }
+    &::before {
+      content: '';
+
+      display   : block;
+      position  : absolute;
+      width     : 11px;
+      height    : 11px;
+      transform : translate(-1px, -20px) rotate(45deg);
+      visibility: hidden;
+
+      z-index         : 5;
+      background-color: rgb(128,128,128);
+    }
+    &:hover {
+      &::after, &::before {
+        visibility: visible;
+      }
+    }
   }
 
   &.dark {
